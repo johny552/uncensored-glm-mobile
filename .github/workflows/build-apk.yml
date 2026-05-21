@@ -33,10 +33,8 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Initialize the EAS project - this will create it if it doesn't exist
-          eas project:init --id uncensored-glm-mobile --non-interactive || true
-          # If that fails, try without --id to let EAS generate one
-          eas project:info --non-interactive || eas init --non-interactive || true
+          # Initialize the EAS project with --force to create it if it doesn't exist
+          eas init --non-interactive --force || true
       
       - name: Build APK with EAS
         env:
