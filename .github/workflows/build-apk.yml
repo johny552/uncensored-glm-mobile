@@ -29,38 +29,22 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
       
-      - name: Configure project for EAS
+      - name: Create EAS project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Add projectId to app.json so EAS recognizes the project
-          python3 << 'EOF'
-          import json
-          import uuid
+          # Create the EAS project - this will prompt for confirmation but we'll auto-confirm
+          echo "uncensored-glm-mobile" | eas project:create --non-interactive || true
           
-          # Read app.json
-          with open('app.json', 'r') as f:
-            config = json.load(f)
-          
-          # Add extra.eas with projectId if not present
-          if 'extra' not in config['expo']:
-            config['expo']['extra'] = {}
-          
-          # Generate or use existing projectId
-          if 'eas' not in config['expo']['extra']:
-            config['expo']['extra']['eas'] = {'projectId': str(uuid.uuid4())}
-          
-          # Write back
-          with open('app.json', 'w') as f:
-            json.dump(config, f, indent=2)
-          
-          print("✅ Added projectId to app.json")
-          EOF
+          # Get the project info and extract the projectId
+          PROJECT_INFO=$(eas project:info --non-interactive 2>&1 || echo "")
+          echo "Project Info: $PROJECT_INFO"
       
       - name: Build APK with EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
+          # Build the APK
           eas build --platform android --profile preview --non-interactive --wait
       
       - name: Upload APK as artifact
