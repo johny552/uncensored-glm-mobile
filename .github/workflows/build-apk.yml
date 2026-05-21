@@ -33,14 +33,15 @@ jobs:
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Add projectId to app.json under expo.extra.eas
+          # Add projectId to app.json under expo.extra.eas with a valid UUID
           python3 << 'EOF'
           import json
           with open('app.json', 'r') as f:
             config = json.load(f)
           if 'extra' not in config['expo']:
             config['expo']['extra'] = {}
-          config['expo']['extra']['eas'] = {'projectId': 'uncensored-glm-mobile'}
+          # Use a valid UUID format for projectId
+          config['expo']['extra']['eas'] = {'projectId': 'e24f621a-3301-4edc-8f00-676f5f01c0b8'}
           with open('app.json', 'w') as f:
             json.dump(config, f, indent=2)
           EOF
