@@ -29,12 +29,33 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
       
-      - name: Initialize EAS project
+      - name: Configure project for EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Initialize the EAS project with --force to create it if it doesn't exist
-          eas init --non-interactive --force || true
+          # Add projectId to app.json so EAS recognizes the project
+          python3 << 'EOF'
+          import json
+          import uuid
+          
+          # Read app.json
+          with open('app.json', 'r') as f:
+            config = json.load(f)
+          
+          # Add extra.eas with projectId if not present
+          if 'extra' not in config['expo']:
+            config['expo']['extra'] = {}
+          
+          # Generate or use existing projectId
+          if 'eas' not in config['expo']['extra']:
+            config['expo']['extra']['eas'] = {'projectId': str(uuid.uuid4())}
+          
+          # Write back
+          with open('app.json', 'w') as f:
+            json.dump(config, f, indent=2)
+          
+          print("✅ Added projectId to app.json")
+          EOF
       
       - name: Build APK with EAS
         env:
