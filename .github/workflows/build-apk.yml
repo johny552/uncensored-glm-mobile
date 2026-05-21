@@ -27,7 +27,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       
       - name: Install EAS CLI
-        run: npm install -g eas-cli
+        run: npm install -g eas-cli@latest
       
       - name: Build APK with EAS
         env:

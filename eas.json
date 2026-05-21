@@ -1,5 +1,4 @@
 {
-  "projectId": "uncensored-glm-mobile",
   "cli": {
     "version": ">= 16.0.0"
   },
