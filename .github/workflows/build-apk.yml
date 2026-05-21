@@ -25,29 +25,11 @@ jobs:
       - name: Build APK
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          eas build --platform android --profile preview --non-interactive --wait
-      
-      - name: Download APK
-        run: |
-          # Get the build ID and download URL
-          BUILD_ID=$(eas build:list --platform android --status finished --limit 1 --json | jq -r '.[0].id')
-          echo "Build ID: $BUILD_ID"
-          
-          # Download the APK
-          eas build:download --id $BUILD_ID --path ./app.apk
+        run: eas build --platform android --profile preview --non-interactive --wait
       
       - name: Upload APK as artifact
         uses: actions/upload-artifact@v3
         with:
-          name: GLM-4-Assistant.apk
-          path: ./app.apk
+          name: GLM-4-Assistant
+          path: '**/*.apk'
           retention-days: 30
-      
-      - name: Create Release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        with:
-          files: ./app.apk
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
