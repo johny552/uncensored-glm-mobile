@@ -29,50 +29,18 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
       
-      - name: Create and configure EAS project
+      - name: Initialize EAS project
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
-          # Try to create the project - it might already exist
-          eas project:create --non-interactive 2>&1 || true
-          
-          # Get the project info
-          PROJECT_OUTPUT=$(eas project:info --json 2>&1 || echo "{}")
-          echo "Project output: $PROJECT_OUTPUT"
-          
-          # Extract projectId from the output and write to eas.json
-          python3 << 'EOF'
-          import json
-          import subprocess
-          
-          # Try to get project info
-          try:
-            result = subprocess.run(['eas', 'project:info', '--json'], 
-                                  capture_output=True, text=True, timeout=10)
-            if result.returncode == 0:
-              project_info = json.loads(result.stdout)
-              project_id = project_info.get('id')
-              if project_id:
-                print(f"Found projectId: {project_id}")
-                
-                # Update eas.json with the projectId
-                with open('eas.json', 'r') as f:
-                  eas_config = json.load(f)
-                
-                eas_config['projectId'] = project_id
-                
-                with open('eas.json', 'w') as f:
-                  json.dump(eas_config, f, indent=2)
-                
-                print(f"✅ Updated eas.json with projectId: {project_id}")
-          except Exception as e:
-            print(f"Error: {e}")
-          EOF
+          # Initialize EAS - this will create the project and configure eas.json
+          yes | eas init --non-interactive || true
       
       - name: Build APK with EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
         run: |
+          # Build the APK
           eas build --platform android --profile preview --non-interactive --wait
       
       - name: Upload APK as artifact
