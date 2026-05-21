@@ -29,6 +29,14 @@ jobs:
       - name: Install EAS CLI
         run: npm install -g eas-cli@latest
       
+      - name: Configure EAS project
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          mkdir -p ~/.eas
+          echo "{\"projectId\": \"uncensored-glm-mobile\"}" > ~/.eas/config.json
+          eas project:info --non-interactive || eas project:init --id uncensored-glm-mobile --non-interactive || true
+      
       - name: Build APK with EAS
         env:
           EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
