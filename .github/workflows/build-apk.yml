@@ -26,28 +26,25 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
       
-      - name: Install EAS CLI
-        run: npm install -g eas-cli@latest
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
       
-      - name: Initialize EAS project
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Generate native Android project
         run: |
-          # Initialize EAS - this will create the project and configure eas.json
-          yes | eas init --non-interactive || true
+          npx expo prebuild --platform android --clean
       
-      - name: Build APK with EAS
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+      - name: Build APK with Gradle
         run: |
-          # Build the APK
-          eas build --platform android --profile preview --non-interactive --wait
+          cd android
+          ./gradlew assembleRelease
       
-      - name: Upload APK as artifact
-        if: success()
+      - name: Find and upload APK
         uses: actions/upload-artifact@v4
         with:
           name: GLM-4-Assistant
-          path: '**/*.apk'
+          path: 'android/app/build/outputs/apk/**/*.apk'
           retention-days: 30
           if-no-files-found: warn
